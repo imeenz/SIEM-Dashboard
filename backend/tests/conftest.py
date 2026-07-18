@@ -1,5 +1,6 @@
 import pytest
-from fastapi.testclient import TestClient
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -36,8 +37,8 @@ def db_session():
         Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture
-def client(db_session):
+@pytest_asyncio.fixture
+async def client(db_session):
     def override_get_db():
         try:
             yield db_session
@@ -46,7 +47,12 @@ def client(db_session):
 
     app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(app) as test_client:
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+    ) as test_client:
         yield test_client
 
     app.dependency_overrides.clear()

@@ -1,0 +1,14 @@
+Jul 19 02:15:43 server01 sshd[1842]: Failed password for admin from 192.168.1.25 port 54321 ssh2
+Jul 19 02:18:20 server01 sshd[1901]: Failed password for invalid user attacker from 10.0.0.50 port 55555 ssh2
+Jul 19 02:22:11 server02 sshd[2015]: Failed password for root from 203.0.113.25 port 49152 ssh2
+Jul 19 03:20:15 firewall01 kernel: FIREWALL BLOCK SRC=203.0.113.50 DST=192.168.1.10 PROTO=TCP SPT=45678 DPT=22
+Jul 19 03:25:30 firewall01 kernel: FIREWALL ALLOW SRC=10.0.0.20 DST=192.168.1.10 PROTO=TCP SPT=50000 DPT=443
+Jul 19 03:31:45 firewall01 kernel: FIREWALL BLOCK SRC=198.51.100.75 DST=192.168.1.20 PROTO=TCP SPT=51234 DPT=3389
+IDS ALERT SRC=203.0.113.100 DST=192.168.1.10 SIGNATURE=SQL_INJECTION SEVERITY=critical
+IDS ALERT SRC=10.0.0.50 DST=192.168.1.20 SIGNATURE=PORT_SCAN SEVERITY=high
+IDS ALERT SRC=198.51.100.30 DST=192.168.1.15 SIGNATURE=BRUTE_FORCE SEVERITY=high
+Jul 19 04:30:15 webserver01 nginx: Connection timeout detected
+Jul 19 04:45:20 server02 cron[1234]: Scheduled task completed
+Jul 19 05:10:30 database01 postgres: Database connection established
+Unknown application message that cannot be parsed
+Malformed security event with no supported format
