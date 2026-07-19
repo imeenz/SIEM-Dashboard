@@ -149,3 +149,91 @@ async def test_ingest_non_utf8_file_returns_400(client):
 
     assert response.status_code == 400
     assert response.json()["detail"] == "File must be UTF-8 encoded"
+
+
+async def test_critical_ids_ingestion_creates_detection(
+    client,
+    db_session,
+):
+    raw_log = (
+        "IDS ALERT SRC=203.0.113.100 DST=192.168.1.10 "
+        "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+    )
+
+    response = await client.post(
+        "/api/v1/ingestion/log",
+        json={"raw_log": raw_log},
+    )
+
+    assert response.status_code == 201
+
+    from app.models.detection import Detection
+
+    detection = db_session.query(Detection).first()
+
+    assert detection is not None
+    assert detection.rule_name == "critical_ids_alert"
+    assert detection.severity == "critical"
+    assert detection.event_id == response.json()["id"]
+
+
+async def test_port_scan_ingestion_creates_detection(
+    client,
+    db_session,
+):
+    raw_log = (
+        "IDS ALERT SRC=10.0.0.50 DST=192.168.1.20 " "SIGNATURE=PORT_SCAN SEVERITY=high"
+    )
+
+    response = await client.post(
+        "/api/v1/ingestion/log",
+        json={"raw_log": raw_log},
+    )
+
+    assert response.status_code == 201
+
+    from app.models.detection import Detection
+
+    detection = (
+        db_session.query(Detection)
+        .filter(Detection.rule_name == "port_scan_detected")
+        .first()
+    )
+
+    assert detection is not None
+    assert detection.rule_name == "port_scan_detected"
+    assert detection.severity == "high"
+    assert detection.event_id == response.json()["id"]
+
+
+async def test_repeated_firewall_blocks_create_detection(
+    client,
+    db_session,
+):
+    source_ip = "203.0.113.200"
+
+    for source_port in range(50001, 50006):
+        raw_log = (
+            "Jul 19 08:00:00 firewall01 kernel: "
+            f"FIREWALL BLOCK SRC={source_ip} DST=192.168.1.10 "
+            f"PROTO=TCP SPT={source_port} DPT=22"
+        )
+
+        response = await client.post(
+            "/api/v1/ingestion/log",
+            json={"raw_log": raw_log},
+        )
+
+        assert response.status_code == 201
+
+    from app.models.detection import Detection
+
+    detection = (
+        db_session.query(Detection)
+        .filter(Detection.rule_name == "suspicious_firewall_activity")
+        .first()
+    )
+
+    assert detection is not None
+    assert detection.rule_name == "suspicious_firewall_activity"
+    assert detection.severity == "high"

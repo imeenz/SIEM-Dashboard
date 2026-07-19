@@ -7,6 +7,7 @@ from alembic import context
 
 from app.core.database import Base
 from app.models.event import Event  # noqa: F401
+from app.models.detection import Detection  # noqa: F401
 
 from app.core.config import settings
 
