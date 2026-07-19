@@ -5,6 +5,8 @@ from app.models.event import Event
 from app.parsers.registry import ParserRegistry
 from app.repositories.event import EventRepository
 from app.repositories.detection import DetectionRepository
+from app.repositories.alert import AlertRepository
+from app.schemas.alert import AlertCreate
 
 
 class IngestionService:
@@ -26,10 +28,26 @@ class IngestionService:
         )
 
         for detection_result in detection_results:
-            DetectionRepository.create(
+            detection = DetectionRepository.create(
                 db=db,
                 detection_data=detection_result,
             )
+
+            existing_alert = AlertRepository.get_open_by_detection_rule_and_source(
+                db=db,
+                rule_name=detection_result.rule_name,
+                source_ip=event.source_ip,
+            )
+
+            if existing_alert is None:
+                AlertRepository.create(
+                    db=db,
+                    alert_data=AlertCreate(
+                        title=detection_result.description,
+                        severity=detection_result.severity,
+                        detection_id=detection.id,
+                    ),
+                )
 
         return event
 

@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.core.logging import configure_logging
 from app.api.v1.ingestion import router as ingestion_router
 from app.api.v1.detections import router as detections_router
+from app.api.v1.alerts import router as alerts_router
 
 configure_logging()
 
@@ -26,6 +27,11 @@ app.include_router(
     detections_router,
     prefix="/api/v1/detections",
     tags=["detections"],
+)
+app.include_router(
+    alerts_router,
+    prefix="/api/v1/alerts",
+    tags=["alerts"],
 )
 
 

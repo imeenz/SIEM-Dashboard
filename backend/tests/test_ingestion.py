@@ -237,3 +237,108 @@ async def test_repeated_firewall_blocks_create_detection(
     assert detection is not None
     assert detection.rule_name == "suspicious_firewall_activity"
     assert detection.severity == "high"
+
+
+async def test_critical_ids_ingestion_creates_alert(
+    client,
+    db_session,
+):
+    raw_log = (
+        "IDS ALERT SRC=203.0.113.150 DST=192.168.1.10 "
+        "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+    )
+
+    response = await client.post(
+        "/api/v1/ingestion/log",
+        json={"raw_log": raw_log},
+    )
+
+    assert response.status_code == 201
+
+    from app.models.alert import Alert
+    from app.models.detection import Detection
+
+    detection = (
+        db_session.query(Detection)
+        .filter(Detection.rule_name == "critical_ids_alert")
+        .first()
+    )
+
+    assert detection is not None
+
+    alert = db_session.query(Alert).filter(Alert.detection_id == detection.id).first()
+
+    assert alert is not None
+    assert alert.title == "Critical IDS alert detected"
+    assert alert.severity == "critical"
+    assert alert.status == "open"
+    assert alert.detection_id == detection.id
+
+
+async def test_duplicate_detections_create_single_active_alert(
+    client,
+    db_session,
+):
+    from app.models.alert import Alert
+    from app.models.detection import Detection
+
+    raw_logs = [
+        (
+            "IDS ALERT SRC=203.0.113.201 DST=192.168.1.10 "
+            "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+        ),
+        (
+            "IDS ALERT SRC=203.0.113.201 DST=192.168.1.10 "
+            "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+        ),
+    ]
+
+    for raw_log in raw_logs:
+        response = await client.post(
+            "/api/v1/ingestion/log",
+            json={"raw_log": raw_log},
+        )
+
+        assert response.status_code == 201
+
+    detections = (
+        db_session.query(Detection)
+        .filter(Detection.rule_name == "critical_ids_alert")
+        .all()
+    )
+
+    alerts = db_session.query(Alert).all()
+
+    assert len(detections) == 2
+    assert len(alerts) == 1
+    assert alerts[0].status == "open"
+
+
+async def test_same_rule_different_sources_create_separate_alerts(
+    client,
+    db_session,
+):
+    from app.models.alert import Alert
+
+    raw_logs = [
+        (
+            "IDS ALERT SRC=203.0.113.201 DST=192.168.1.10 "
+            "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+        ),
+        (
+            "IDS ALERT SRC=203.0.113.202 DST=192.168.1.10 "
+            "SIGNATURE=SQL_INJECTION SEVERITY=critical"
+        ),
+    ]
+
+    for raw_log in raw_logs:
+        response = await client.post(
+            "/api/v1/ingestion/log",
+            json={"raw_log": raw_log},
+        )
+
+        assert response.status_code == 201
+
+    alerts = db_session.query(Alert).all()
+
+    assert len(alerts) == 2
