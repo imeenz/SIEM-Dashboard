@@ -6,6 +6,7 @@ from app.core.logging import configure_logging
 from app.api.v1.ingestion import router as ingestion_router
 from app.api.v1.detections import router as detections_router
 from app.api.v1.alerts import router as alerts_router
+from fastapi.middleware.cors import CORSMiddleware
 
 configure_logging()
 
@@ -32,6 +33,15 @@ app.include_router(
     alerts_router,
     prefix="/api/v1/alerts",
     tags=["alerts"],
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
