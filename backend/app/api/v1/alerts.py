@@ -4,8 +4,11 @@ from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from app.repositories.alert import AlertRepository
 from app.schemas.alert import AlertResponse, AlertStatusUpdate
+from app.dependencies.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)],
+)
 
 VALID_ALERT_STATUSES = {
     "open",

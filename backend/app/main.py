@@ -7,6 +7,7 @@ from app.api.v1.ingestion import router as ingestion_router
 from app.api.v1.detections import router as detections_router
 from app.api.v1.alerts import router as alerts_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.auth import router as auth_router
 
 configure_logging()
 
@@ -42,6 +43,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+app.include_router(
+    auth_router,
+    prefix="/api/v1",
 )
 
 

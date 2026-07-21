@@ -4,8 +4,13 @@ from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from app.schemas.event import EventCreate, EventResponse
 from app.services.event import EventService
+from app.dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/events", tags=["Events"])
+router = APIRouter(
+    prefix="/events",
+    tags=["Events"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.post(

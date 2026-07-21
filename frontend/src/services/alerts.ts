@@ -1,6 +1,7 @@
 import api from "./api"
 import type { Alert } from "../types/alert"
 
+
 export interface AlertFilters {
   status?: string
   severity?: string

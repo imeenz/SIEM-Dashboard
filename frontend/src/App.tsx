@@ -1,15 +1,36 @@
-import { Route, Routes } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom"
 
 import Sidebar from "./components/layout/Sidebar"
+import { useAuth } from "./hooks/useAuth"
 import Alerts from "./pages/Alerts"
 import Dashboard from "./pages/Dashboard"
 import Detections from "./pages/Detections"
 import Events from "./pages/Events"
+import Login from "./pages/LoginPage"
 
-function App() {
+
+function ProtectedApp() {
+  const {
+    user,
+    loading,
+    isAuthenticated,
+  } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="auth-loading">
+        Verifying session...
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Sidebar user={user} />
 
       <main className="main-content">
         <Routes>
@@ -20,6 +41,16 @@ function App() {
         </Routes>
       </main>
     </div>
+  )
+}
+
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/*" element={<ProtectedApp />} />
+    </Routes>
   )
 }
 

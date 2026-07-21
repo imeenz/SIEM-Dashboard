@@ -4,8 +4,11 @@ from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from app.repositories.detection import DetectionRepository
 from app.schemas.detection import DetectionResponse
+from app.dependencies.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get(

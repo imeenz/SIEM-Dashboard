@@ -3,13 +3,13 @@ import pytest
 pytestmark = pytest.mark.asyncio
 
 
-async def test_ingest_ssh_log(client):
+async def test_ingest_ssh_log(authenticated_client):
     raw_log = (
         "Jul 19 02:15:43 server01 sshd[1842]: "
         "Failed password for admin from 192.168.1.25 port 54321 ssh2"
     )
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": raw_log},
     )
@@ -26,20 +26,20 @@ async def test_ingest_ssh_log(client):
     assert data["id"] is not None
 
 
-async def test_ingested_log_appears_in_events(client):
+async def test_ingested_log_appears_in_events(authenticated_client):
     raw_log = (
         "Jul 19 02:15:43 server01 sshd[1842]: "
         "Failed password for admin from 10.0.0.50 port 54321 ssh2"
     )
 
-    create_response = await client.post(
+    create_response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": raw_log},
     )
 
     assert create_response.status_code == 201
 
-    response = await client.get("/api/v1/events")
+    response = await authenticated_client.get("/api/v1/events")
 
     assert response.status_code == 200
 
@@ -49,8 +49,8 @@ async def test_ingested_log_appears_in_events(client):
     assert events[0]["source_ip"] == "10.0.0.50"
 
 
-async def test_ingest_unknown_log_returns_422(client):
-    response = await client.post(
+async def test_ingest_unknown_log_returns_422(authenticated_client):
+    response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": "Unknown application message"},
     )
@@ -61,7 +61,7 @@ async def test_ingest_unknown_log_returns_422(client):
     )
 
 
-async def test_ingest_log_file(client):
+async def test_ingest_log_file(authenticated_client):
     file_content = (
         "Jul 19 02:15:43 server01 sshd[1842]: "
         "Failed password for admin from 192.168.1.25 port 54321 ssh2\n"
@@ -79,7 +79,7 @@ async def test_ingest_log_file(client):
         )
     }
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/file",
         files=files,
     )
@@ -95,7 +95,7 @@ async def test_ingest_log_file(client):
     assert data["failed_logs"] == ["Unknown application message"]
 
 
-async def test_file_ingestion_stores_events(client):
+async def test_file_ingestion_stores_events(authenticated_client):
     file_content = (
         "Jul 19 02:15:43 server01 sshd[1842]: "
         "Failed password for admin from 192.168.1.25 port 54321 ssh2\n"
@@ -112,14 +112,14 @@ async def test_file_ingestion_stores_events(client):
         )
     }
 
-    upload_response = await client.post(
+    upload_response = await authenticated_client.post(
         "/api/v1/ingestion/file",
         files=files,
     )
 
     assert upload_response.status_code == 201
 
-    response = await client.get("/api/v1/events")
+    response = await authenticated_client.get("/api/v1/events")
 
     assert response.status_code == 200
 
@@ -133,7 +133,7 @@ async def test_file_ingestion_stores_events(client):
     assert "firewall" in sources
 
 
-async def test_ingest_non_utf8_file_returns_400(client):
+async def test_ingest_non_utf8_file_returns_400(authenticated_client):
     files = {
         "file": (
             "invalid.log",
@@ -142,7 +142,7 @@ async def test_ingest_non_utf8_file_returns_400(client):
         )
     }
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/file",
         files=files,
     )
@@ -152,7 +152,7 @@ async def test_ingest_non_utf8_file_returns_400(client):
 
 
 async def test_critical_ids_ingestion_creates_detection(
-    client,
+    authenticated_client,
     db_session,
 ):
     raw_log = (
@@ -160,7 +160,7 @@ async def test_critical_ids_ingestion_creates_detection(
         "SIGNATURE=SQL_INJECTION SEVERITY=critical"
     )
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": raw_log},
     )
@@ -178,14 +178,15 @@ async def test_critical_ids_ingestion_creates_detection(
 
 
 async def test_port_scan_ingestion_creates_detection(
-    client,
+    authenticated_client,
     db_session,
 ):
     raw_log = (
-        "IDS ALERT SRC=10.0.0.50 DST=192.168.1.20 " "SIGNATURE=PORT_SCAN SEVERITY=high"
+        "IDS ALERT SRC=10.0.0.50 DST=192.168.1.20 "
+        "SIGNATURE=PORT_SCAN SEVERITY=high"
     )
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": raw_log},
     )
@@ -207,7 +208,7 @@ async def test_port_scan_ingestion_creates_detection(
 
 
 async def test_repeated_firewall_blocks_create_detection(
-    client,
+    authenticated_client,
     db_session,
 ):
     source_ip = "203.0.113.200"
@@ -219,7 +220,7 @@ async def test_repeated_firewall_blocks_create_detection(
             f"PROTO=TCP SPT={source_port} DPT=22"
         )
 
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/ingestion/log",
             json={"raw_log": raw_log},
         )
@@ -230,7 +231,9 @@ async def test_repeated_firewall_blocks_create_detection(
 
     detection = (
         db_session.query(Detection)
-        .filter(Detection.rule_name == "suspicious_firewall_activity")
+        .filter(
+            Detection.rule_name == "suspicious_firewall_activity"
+        )
         .first()
     )
 
@@ -240,7 +243,7 @@ async def test_repeated_firewall_blocks_create_detection(
 
 
 async def test_critical_ids_ingestion_creates_alert(
-    client,
+    authenticated_client,
     db_session,
 ):
     raw_log = (
@@ -248,7 +251,7 @@ async def test_critical_ids_ingestion_creates_alert(
         "SIGNATURE=SQL_INJECTION SEVERITY=critical"
     )
 
-    response = await client.post(
+    response = await authenticated_client.post(
         "/api/v1/ingestion/log",
         json={"raw_log": raw_log},
     )
@@ -266,7 +269,11 @@ async def test_critical_ids_ingestion_creates_alert(
 
     assert detection is not None
 
-    alert = db_session.query(Alert).filter(Alert.detection_id == detection.id).first()
+    alert = (
+        db_session.query(Alert)
+        .filter(Alert.detection_id == detection.id)
+        .first()
+    )
 
     assert alert is not None
     assert alert.title == "Critical IDS alert detected"
@@ -276,7 +283,7 @@ async def test_critical_ids_ingestion_creates_alert(
 
 
 async def test_duplicate_detections_create_single_active_alert(
-    client,
+    authenticated_client,
     db_session,
 ):
     from app.models.alert import Alert
@@ -294,7 +301,7 @@ async def test_duplicate_detections_create_single_active_alert(
     ]
 
     for raw_log in raw_logs:
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/ingestion/log",
             json={"raw_log": raw_log},
         )
@@ -315,7 +322,7 @@ async def test_duplicate_detections_create_single_active_alert(
 
 
 async def test_same_rule_different_sources_create_separate_alerts(
-    client,
+    authenticated_client,
     db_session,
 ):
     from app.models.alert import Alert
@@ -332,7 +339,7 @@ async def test_same_rule_different_sources_create_separate_alerts(
     ]
 
     for raw_log in raw_logs:
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/ingestion/log",
             json={"raw_log": raw_log},
         )

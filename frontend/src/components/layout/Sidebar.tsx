@@ -2,10 +2,13 @@ import {
   Activity,
   Bell,
   LayoutDashboard,
+  LogOut,
   Radar,
   Shield,
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
+import { removeToken } from "../../services/auth"
+import type { CurrentUser } from "../../services/auth"
 
 const navigation = [
   {
@@ -29,7 +32,14 @@ const navigation = [
     path: "/detections",
   },
 ]
-function Sidebar() {
+interface SidebarProps {
+  user: CurrentUser | null
+}
+function Sidebar({ user }: SidebarProps) { 
+  function handleLogout() {
+    removeToken()
+    window.location.href = "/login"
+}
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -66,8 +76,28 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="system-status">
-          <span className="status-dot" />
+        <div className="analyst-profile">
+          <div className="analyst-avatar">
+             {user?.full_name.charAt(0).toUpperCase()}
+             </div>
+        
+        <div className="analyst-info">
+          <strong>{user?.full_name}</strong>
+          <span>{user?.email}</span>
+        </div>
+      </div>
+        <button
+        type="button"
+        className="logout-button"
+        onClick={handleLogout}
+        >
+          <LogOut size={18} />
+          <span>Sign Out</span>
+        </button>
+
+  
+      <div className="system-status">
+        <span className="status-dot" />
 
           <div>
             <strong>System Operational</strong>
