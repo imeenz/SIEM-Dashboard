@@ -20,14 +20,11 @@ A full-stack Security Information and Event Management platform for collecting, 
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
 - [Architecture](#architecture)
 - [How It Works](#how-it-works)
   - [Core Workflow](#core-workflow)
   - [Security Event Pipeline](#security-event-pipeline)
   - [Detection and Correlation](#detection-and-correlation)
-- [Screenshots](#screenshots)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Clone the Repository](#clone-the-repository)
@@ -42,80 +39,49 @@ A full-stack Security Information and Event Management platform for collecting, 
   - [Sign In](#sign-in)
 - [API Documentation](#api-documentation)
 - [Testing](#testing)
-- [Project Status](#project-status)
-- [Future Improvements](#future-improvements)
-- [License](#license)
-
----
-
-## Overview
-
-SIEM Dashboard is a full-stack security monitoring platform designed to centralize security events and provide a unified interface for monitoring, detection, alerting, and investigation.
-
-The platform processes security events through an ingestion and normalization pipeline, stores normalized events in PostgreSQL, applies detection and correlation rules, and presents resulting alerts through a security operations dashboard.
-
----
-
-## Features
-
-### Security Event Management
-
-- Centralized security event storage
-- Event normalization
-- Event search
-- Source and destination IP tracking
-- Event severity classification
-- Security event categorization
-- Timestamp-based event tracking
-
-### Detection
-
-- Rule-based security detection
-- SSH brute-force detection
-- Suspicious firewall activity detection
-- Critical IDS alert detection
-- Detection-to-event correlation
-- Severity classification
-
-### Alert Management
-
-- Centralized alert management
-- Critical, High, Medium, and Low severity levels
-- Alert status management
-- Alert filtering
-- Alert search
-- Recent alert overview
-
-### Security Operations Dashboard
-
-- Security overview
-- Severity KPI cards
-- Event activity visualization
-- Severity distribution
-- Recent alerts
-- Auto-refresh status
-- Security operations status indicator
-
-### Authentication
-
-- User registration
-- JWT-based authentication
-- Protected API endpoints
-- Protected frontend routes
-- Session handling
-- Logout functionality
-
-### API
-
-- RESTful backend API
-- FastAPI
-- OpenAPI specification
-- Swagger UI
-- Automatic API documentation
 
 ---
 
 ## Architecture
+
+```text
+siem-dashboard/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── dependencies/
+│   │   ├── models/
+│   │   ├── repositories/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── main.py
+│   │
+│   ├── alembic/
+│   ├── tests/
+│   ├── requirements.txt
+│   └── .env
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.*
+│
+├── docs/
+│   └── screenshots/
+│       ├── login.png
+│       ├── dashboard-overview.png
+│       ├── dashboard-alerts.png
+│       ├── alerts.png
+│       ├── events.png
+│       ├── detections.png
+│       └── api-docs.png
+│
+└── README.md
+```
 
 The application follows a layered full-stack architecture.
 
@@ -147,48 +113,6 @@ The application follows a layered full-stack architecture.
 │                                               │
 │  Users │ Events │ Detections │ Alerts        │
 └───────────────────────────────────────────────┘
-```
-
-### Project Structure
-
-```text
-siem-dashboard/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── dependencies/
-│   │   ├── models/
-│   │   ├── repositories/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   └── main.py
-│   │
-│   ├── alembic/
-│   ├── tests/
-│   ├── requirements.txt
-│   └── .env
-│
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── vite.config.*
-│
-├── docs/
-│   └── screenshots/
-│       ├── login.png
-│       ├── signup.png
-│       ├── dashboard-overview.png
-│       ├── dashboard-alerts.png
-│       ├── alerts.png
-│       ├── events.png
-│       ├── detections.png
-│       └── api-docs.png
-│
-└── README.md
 ```
 
 ---
@@ -285,56 +209,6 @@ Current detection rules include:
 | `critical_ids_alert` | Critical IDS activity | Critical |
 
 Detections maintain a relationship with the event that triggered them, providing traceability between security activity and the resulting alert.
-
----
-
-## Screenshots
-
-### Authentication
-
-The application provides a dedicated authentication interface for security analysts.
-
-#### Sign In
-
-![Login](docs/screenshots/login.png)
-
-#### Sign Up
-
-New users can create an analyst account through the registration page.
-
-![Sign Up](docs/screenshots/signup.png)
-
-### Security Dashboard
-
-The main dashboard provides a centralized overview of security activity, including severity metrics, event activity, alert distribution, and recent alerts.
-
-![Dashboard Overview](docs/screenshots/dashboard-overview.png)
-
-![Dashboard Alerts](docs/screenshots/dashboard-alerts.png)
-
-### Alerts
-
-The alert management interface allows analysts to search and filter security alerts and update their status.
-
-![Alerts](docs/screenshots/alerts.png)
-
-### Security Events
-
-The events interface exposes normalized security events with severity, source and destination information, event types, messages, and timestamps.
-
-![Security Events](docs/screenshots/events.png)
-
-### Detections
-
-The detection interface provides visibility into security rules and the events that triggered them.
-
-![Detections](docs/screenshots/detections.png)
-
-### API Documentation
-
-The backend exposes an automatically generated OpenAPI specification through FastAPI's Swagger interface.
-
-![API Documentation](docs/screenshots/api-docs.png)
 
 ---
 
@@ -507,8 +381,6 @@ Enter:
 
 The account is stored in PostgreSQL and can then be used to authenticate with the application.
 
-![Sign Up](docs/screenshots/signup.png)
-
 ### Sign In
 
 After creating an account, use the registered email address and password to access the security operations dashboard.
@@ -521,6 +393,8 @@ After authentication, the dashboard provides access to:
 - Alerts
 - Events
 - Detections
+
+![Dashboard](docs/screenshots/dashboard-overview.png)
 
 ---
 
@@ -592,63 +466,3 @@ npm run build
 ```
 
 ---
-
-## Project Status
-
-The core SIEM platform is complete and functional.
-
-Implemented components include:
-
-- User registration
-- JWT authentication
-- Protected API endpoints
-- Protected frontend routes
-- Security event management
-- Event normalization
-- PostgreSQL persistence
-- Detection rules
-- Detection-to-event relationships
-- Alert generation
-- Alert management
-- Security dashboard
-- React frontend
-- FastAPI backend
-- PostgreSQL database
-- Alembic migrations
-- REST API
-- Swagger/OpenAPI documentation
-- Automated backend tests
-- Frontend linting
-- Production frontend build
-
-The project focuses on the core SIEM workflow and provides an architecture that can be extended with additional security integrations and detection capabilities.
-
----
-
-## Future Improvements
-
-Potential extensions include:
-
-- Syslog listener integration
-- Additional log source integrations
-- Network IDS integration
-- Threat intelligence enrichment
-- Advanced correlation rules
-- MITRE ATT&CK mapping
-- IP reputation analysis
-- Email and messaging notifications
-- Role-based access control
-- Advanced incident investigation workflows
-- Long-term event analytics
-- Additional dashboard visualizations
-- Automated response actions
-
-These capabilities can be added incrementally without changing the core event, detection, and alert architecture.
-
----
-
-## License
-
-No license has currently been specified for this repository.
-
-If this project is intended to be distributed as open-source software, add an appropriate license file such as MIT, Apache-2.0, or another license that matches the intended usage terms.
