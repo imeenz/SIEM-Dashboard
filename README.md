@@ -387,14 +387,7 @@ After creating an account, use the registered email address and password to acce
 
 ![Login](docs/screenshots/login.png)
 
-After authentication, the dashboard provides access to:
 
-- Security Overview
-- Alerts
-- Events
-- Detections
-
-![Dashboard](docs/screenshots/dashboard-overview.png)
 
 ---
 
@@ -419,7 +412,7 @@ The Swagger interface provides:
 
 The OpenAPI specification is also available through FastAPI's generated OpenAPI endpoint.
 
-![API Documentation](docs/screenshots/api-docs.png)
+
 
 ---
 
