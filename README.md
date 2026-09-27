@@ -4,15 +4,29 @@ A full-stack Security Information and Event Management platform for collecting, 
 
 ![SIEM Dashboard](docs/screenshots/dashboard-overview.png)
 
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| Backend | Python, FastAPI |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy |
+| Migrations | Alembic |
+| Authentication | JWT |
+| API Documentation | OpenAPI / Swagger |
+| Testing | Pytest |
+| Code Quality | Ruff, Black |
+
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
 - [Architecture](#architecture)
-- [Security Event Pipeline](#security-event-pipeline)
-- [Detection and Correlation](#detection-and-correlation)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
+- [How It Works](#how-it-works)
+  - [Core Workflow](#core-workflow)
+  - [Security Event Pipeline](#security-event-pipeline)
+  - [Detection and Correlation](#detection-and-correlation)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
@@ -21,7 +35,11 @@ A full-stack Security Information and Event Management platform for collecting, 
   - [Database Setup](#database-setup)
   - [Frontend Setup](#frontend-setup)
 - [Configuration](#configuration)
-- [Running the Application](#running-the-application)
+- [How to Run](#how-to-run)
+  - [Start the Backend](#start-the-backend)
+  - [Start the Frontend](#start-the-frontend)
+  - [Create an Account](#create-an-account)
+  - [Sign In](#sign-in)
 - [API Documentation](#api-documentation)
 - [Testing](#testing)
 - [Project Status](#project-status)
@@ -34,35 +52,7 @@ A full-stack Security Information and Event Management platform for collecting, 
 
 SIEM Dashboard is a full-stack security monitoring platform designed to centralize security events and provide a unified interface for monitoring, detection, alerting, and investigation.
 
-The system receives security events, parses and normalizes them into a consistent structure, stores them in PostgreSQL, and applies detection and correlation logic to identify suspicious activity.
-
-Detected activity is presented through a React-based security operations dashboard backed by a FastAPI REST API.
-
-### Core workflow
-
-```text
-Raw Security Event
-        │
-        ▼
-    Ingestion
-        │
-        ▼
-Parsing & Normalization
-        │
-        ▼
-   PostgreSQL
-        │
-        ▼
-Detection & Correlation
-        │
-        ▼
-      Alerts
-        │
-        ▼
-Investigation Dashboard
-```
-
-The project focuses on building the core components of a SIEM platform while maintaining a modular architecture that can be extended with additional data sources, detection rules, integrations, and security capabilities.
+The platform processes security events through an ingestion and normalization pipeline, stores normalized events in PostgreSQL, applies detection and correlation rules, and presents resulting alerts through a security operations dashboard.
 
 ---
 
@@ -103,18 +93,17 @@ The project focuses on building the core components of a SIEM platform while mai
 - Event activity visualization
 - Severity distribution
 - Recent alerts
-- Real-time-style dashboard updates
+- Auto-refresh status
 - Security operations status indicator
 
 ### Authentication
 
 - User registration
-- Secure login
 - JWT-based authentication
 - Protected API endpoints
+- Protected frontend routes
 - Session handling
 - Logout functionality
-- Protected frontend routes
 
 ### API
 
@@ -133,7 +122,7 @@ The application follows a layered full-stack architecture.
 ```text
 ┌───────────────────────────────────────────────┐
 │                 React Frontend                │
-│             TypeScript + Vite                 │
+│              TypeScript + Vite                │
 │                                               │
 │  Dashboard │ Events │ Alerts │ Detections    │
 └───────────────────────┬───────────────────────┘
@@ -156,136 +145,11 @@ The application follows a layered full-stack architecture.
 ┌───────────────────────────────────────────────┐
 │                  PostgreSQL                   │
 │                                               │
-│ Users │ Events │ Detections │ Alerts         │
+│  Users │ Events │ Detections │ Alerts        │
 └───────────────────────────────────────────────┘
 ```
 
-### Backend layers
-
-The backend is separated into dedicated layers for API handling, business logic, persistence, validation, and infrastructure concerns.
-
-```text
-backend/
-└── app/
-    ├── api/
-    ├── core/
-    ├── dependencies/
-    ├── models/
-    ├── repositories/
-    ├── schemas/
-    ├── services/
-    ├── utils/
-    └── main.py
-```
-
-This separation allows individual components to be extended without tightly coupling the API layer to database implementation details.
-
----
-
-## Security Event Pipeline
-
-A central part of the platform is the event processing pipeline.
-
-```text
-Event Source
-     │
-     ▼
-Ingestion
-     │
-     ▼
-Parser
-     │
-     ▼
-Normalization
-     │
-     ▼
-Database Storage
-     │
-     ▼
-Detection Engine
-     │
-     ├───────────────┐
-     ▼               ▼
-Detection         No Detection
-     │
-     ▼
-Alert Generation
-     │
-     ▼
-Dashboard
-```
-
-The normalized event model provides a consistent representation regardless of the original event source.
-
-Examples of events represented in the system include:
-
-- Failed authentication attempts
-- Firewall blocks
-- Firewall allows
-- IDS alerts
-- Database service events
-- Scheduled task events
-- Web server events
-
----
-
-## Detection and Correlation
-
-The detection layer evaluates normalized events against security rules.
-
-Current detection examples include:
-
-| Detection Rule | Description | Severity |
-|---|---|---|
-| `ssh_brute_force` | Detects possible SSH brute-force activity | High |
-| `suspicious_firewall_activity` | Detects repeated firewall blocks from the same source | High |
-| `critical_ids_alert` | Detects critical IDS activity | Critical |
-
-Detections maintain a relationship with the event that triggered them, allowing analysts to move from a detection back to the underlying security event.
-
-```text
-Security Event
-      │
-      ▼
-Detection Rule
-      │
-      ▼
-Detection
-      │
-      ▼
-Alert
-      │
-      ▼
-Analyst Investigation
-```
-
-This relationship provides traceability between raw security activity and the resulting security alert.
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React |
-| Language | TypeScript |
-| Frontend Build Tool | Vite |
-| Styling | Tailwind CSS |
-| Backend | Python |
-| API Framework | FastAPI |
-| Database | PostgreSQL |
-| ORM | SQLAlchemy |
-| Database Migrations | Alembic |
-| Authentication | JWT |
-| API Specification | OpenAPI |
-| API Documentation | Swagger UI |
-| Testing | Pytest |
-| Python Linting | Ruff |
-| Python Formatting | Black |
-
----
-
-## Project Structure
+### Project Structure
 
 ```text
 siem-dashboard/
@@ -316,6 +180,7 @@ siem-dashboard/
 ├── docs/
 │   └── screenshots/
 │       ├── login.png
+│       ├── signup.png
 │       ├── dashboard-overview.png
 │       ├── dashboard-alerts.png
 │       ├── alerts.png
@@ -328,13 +193,116 @@ siem-dashboard/
 
 ---
 
+## How It Works
+
+### Core Workflow
+
+The SIEM processes security activity through a series of stages, from event ingestion to analyst investigation.
+
+```text
+Security Event
+      ↓
+   Ingestion
+      ↓
+Parsing & Normalization
+      ↓
+ PostgreSQL
+      ↓
+Detection & Correlation
+      ↓
+    Alerts
+      ↓
+Investigation
+```
+
+### Security Event Pipeline
+
+Security events are processed through the following pipeline:
+
+```text
+Event Source
+     │
+     ▼
+Ingestion
+     │
+     ▼
+Parser
+     │
+     ▼
+Normalization
+     │
+     ▼
+Database Storage
+     │
+     ▼
+Detection Engine
+     │
+     ▼
+Alert Generation
+     │
+     ▼
+Dashboard
+```
+
+The normalized event model provides a consistent representation of security activity regardless of the original event source.
+
+Examples of events represented in the system include:
+
+- Failed authentication attempts
+- Firewall blocks
+- Firewall allows
+- IDS alerts
+- Database service events
+- Scheduled task events
+- Web server events
+
+### Detection and Correlation
+
+The detection layer evaluates normalized events against security rules.
+
+```text
+Security Event
+      │
+      ▼
+Detection Rule
+      │
+      ▼
+Detection
+      │
+      ▼
+Alert
+      │
+      ▼
+Analyst Investigation
+```
+
+Current detection rules include:
+
+| Detection Rule | Description | Severity |
+|---|---|---|
+| `ssh_brute_force` | Possible SSH brute-force activity | High |
+| `suspicious_firewall_activity` | Repeated firewall blocks from the same source | High |
+| `critical_ids_alert` | Critical IDS activity | Critical |
+
+Detections maintain a relationship with the event that triggered them, providing traceability between security activity and the resulting alert.
+
+---
+
 ## Screenshots
 
 ### Authentication
 
-The application provides a dedicated analyst authentication interface using JWT-based authentication.
+The application provides a dedicated authentication interface for security analysts.
+
+#### Sign In
 
 ![Login](docs/screenshots/login.png)
+
+#### Sign Up
+
+New users can create an analyst account through the registration page.
+
+![Sign Up](docs/screenshots/signup.png)
 
 ### Security Dashboard
 
@@ -394,20 +362,14 @@ psql --version
 git --version
 ```
 
----
-
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/siem-dashboard.git
-cd siem-dashboard
+git clone https://github.com/imeenz/SIEM-Dashboard.git
+cd SIEM-Dashboard
 ```
 
-Replace `YOUR_USERNAME` with the GitHub account that hosts the repository.
-
----
-
-## Backend Setup
+### Backend Setup
 
 Navigate to the backend directory:
 
@@ -415,16 +377,16 @@ Navigate to the backend directory:
 cd backend
 ```
 
-Create a Python virtual environment:
+Create a Python virtual environment.
 
-### Windows
+#### Windows
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
-### Linux / macOS
+#### Linux / macOS
 
 ```bash
 python3 -m venv .venv
@@ -437,9 +399,7 @@ Install the backend dependencies:
 pip install -r requirements.txt
 ```
 
----
-
-## Database Setup
+### Database Setup
 
 Create a PostgreSQL database for the application.
 
@@ -459,17 +419,15 @@ alembic upgrade head
 
 This creates the required database schema.
 
----
+### Frontend Setup
 
-## Frontend Setup
-
-Open a second terminal and navigate to the frontend:
+Open a second terminal and navigate to the frontend directory:
 
 ```bash
 cd frontend
 ```
 
-Install the dependencies:
+Install the frontend dependencies:
 
 ```bash
 npm install
@@ -479,17 +437,17 @@ npm install
 
 ## Configuration
 
-The backend uses environment variables for configuration.
+The backend uses environment variables for application configuration.
 
-Create the environment file:
+Create:
 
 ```text
 backend/.env
 ```
 
-Configure the database connection and application secret according to the environment configuration used by the backend.
+Configure the database connection and application secret according to your local environment.
 
-A typical configuration includes:
+Example:
 
 ```env
 DATABASE_URL=postgresql://USERNAME:PASSWORD@localhost:5432/siem_dashboard
@@ -502,9 +460,9 @@ Do not commit `.env` files containing real credentials or secrets to version con
 
 ---
 
-## Running the Application
+## How to Run
 
-The backend and frontend are started separately during local development.
+After completing the installation and configuration steps, start the backend and frontend separately.
 
 ### Start the Backend
 
@@ -535,7 +493,34 @@ The frontend will normally be available at:
 http://localhost:5173
 ```
 
-Open the frontend URL in a browser and sign in using a registered account.
+Open the frontend URL in your browser.
+
+### Create an Account
+
+On the first launch, create an analyst account through the registration page.
+
+Enter:
+
+- Full name
+- Email address
+- Password
+
+The account is stored in PostgreSQL and can then be used to authenticate with the application.
+
+![Sign Up](docs/screenshots/signup.png)
+
+### Sign In
+
+After creating an account, use the registered email address and password to access the security operations dashboard.
+
+![Login](docs/screenshots/login.png)
+
+After authentication, the dashboard provides access to:
+
+- Security Overview
+- Alerts
+- Events
+- Detections
 
 ---
 
@@ -560,6 +545,8 @@ The Swagger interface provides:
 
 The OpenAPI specification is also available through FastAPI's generated OpenAPI endpoint.
 
+![API Documentation](docs/screenshots/api-docs.png)
+
 ---
 
 ## Testing
@@ -574,26 +561,31 @@ pytest
 
 The project has been validated with the complete backend test suite.
 
-Current validation includes:
+Current validation:
 
 ```text
 107 tests passed
 ```
 
-Code quality checks can also be run with:
+Run the Python linting checks:
 
 ```bash
 ruff check .
+```
+
+Check Python formatting:
+
+```bash
 black --check .
 ```
 
-The frontend can be validated with:
+From the frontend directory, run the frontend linting checks:
 
 ```bash
 npm run lint
 ```
 
-A production frontend build can be generated with:
+Create a production frontend build:
 
 ```bash
 npm run build
@@ -607,8 +599,10 @@ The core SIEM platform is complete and functional.
 
 Implemented components include:
 
-- Authentication
-- JWT authorization
+- User registration
+- JWT authentication
+- Protected API endpoints
+- Protected frontend routes
 - Security event management
 - Event normalization
 - PostgreSQL persistence
@@ -627,7 +621,7 @@ Implemented components include:
 - Frontend linting
 - Production frontend build
 
-The project is currently focused on the core SIEM workflow and is structured to support additional integrations and security capabilities in future iterations.
+The project focuses on the core SIEM workflow and provides an architecture that can be extended with additional security integrations and detection capabilities.
 
 ---
 
@@ -649,7 +643,7 @@ Potential extensions include:
 - Additional dashboard visualizations
 - Automated response actions
 
-These capabilities are intentionally kept separate from the current core implementation so the existing architecture can evolve without introducing unnecessary infrastructure dependencies.
+These capabilities can be added incrementally without changing the core event, detection, and alert architecture.
 
 ---
 
