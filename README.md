@@ -124,19 +124,7 @@ The application follows a layered full-stack architecture.
 The SIEM processes security activity through a series of stages, from event ingestion to analyst investigation.
 
 ```text
-Security Event
-      ↓
-   Ingestion
-      ↓
-Parsing & Normalization
-      ↓
- PostgreSQL
-      ↓
-Detection & Correlation
-      ↓
-    Alerts
-      ↓
-Investigation
+Security Event → Ingestion → Parsing & Normalization → PostgreSQL → Detection & Correlation → Alerts → Investigation
 ```
 
 ### Security Event Pipeline
@@ -144,28 +132,8 @@ Investigation
 Security events are processed through the following pipeline:
 
 ```text
-Event Source
-     │
-     ▼
-Ingestion
-     │
-     ▼
-Parser
-     │
-     ▼
-Normalization
-     │
-     ▼
-Database Storage
-     │
-     ▼
-Detection Engine
-     │
-     ▼
-Alert Generation
-     │
-     ▼
-Dashboard
+
+Event Source → Ingestion → Parser → Normalization → Database Storage → Detection Engine → Alert Generation → Dashboard
 ```
 
 The normalized event model provides a consistent representation of security activity regardless of the original event source.
@@ -185,19 +153,7 @@ Examples of events represented in the system include:
 The detection layer evaluates normalized events against security rules.
 
 ```text
-Security Event
-      │
-      ▼
-Detection Rule
-      │
-      ▼
-Detection
-      │
-      ▼
-Alert
-      │
-      ▼
-Analyst Investigation
+Security Event → Detection Rule → Detection → Alert → Analyst Investigation
 ```
 
 Current detection rules include:
@@ -380,12 +336,6 @@ Enter:
 - Password
 
 The account is stored in PostgreSQL and can then be used to authenticate with the application.
-
-### Sign In
-
-After creating an account, use the registered email address and password to access the security operations dashboard.
-
-![Login](docs/screenshots/login.png)
 
 
 
